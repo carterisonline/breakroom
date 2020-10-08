@@ -1,5 +1,5 @@
 [package]
-name = "igneous-parseway"
+name = "igneous"
 version = "0.1.0"
 authors = ["carter"]
 edition = "2018"
