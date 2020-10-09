@@ -9,10 +9,20 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     let options = fs_extra::dir::DirOptions { depth: 3 };
-    let dir_content = fs_extra::dir::get_dir_content2(&args[1], &options)
+    let all_files: Vec<(usize, String)> = fs_extra::dir::get_dir_content2(&args[1], &options)
         .ok()
-        .unwrap();
-    for filename in dir_content.files {
+        .unwrap()
+        .files
+        .into_iter()
+        .enumerate()
+        .collect();
+
+    fs_extra::dir::create(&args[2], false).unwrap();
+
+    println!("{:?}", all_files);
+
+    for (fileid, filename) in &all_files {
+        //println!("{}", &filename);
         if filename.ends_with(".md") {
             fs_extra::dir::create(&args[2], false);
             fs_extra::file::write_all(
