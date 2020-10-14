@@ -7,5 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.19"
+fern = { version = "0.6.0", features = ["colored"] }
 fs_extra = "1.2.0"
+itertools = "0.9.0"
+log = "0.4.11"
 markdown = "0.3"
