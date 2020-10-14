@@ -1,11 +1,16 @@
 extern crate fs_extra;
 extern crate markdown;
 
+mod logging;
+
+use fern::colors::{Color, ColoredLevelConfig};
+use log::{debug, error, info, trace, warn};
 use std::env;
 
 const ERROR_BACKLINK_MISMATCH: &str = "If you're seeing this, congratulations! Your file contained malformed backlinks.\n\nYour content that was successfully converted is still saved in this folder. Here's where the issue was:\n\n";
 
 fn main() {
+    logging::setup_logs(ColoredLevelConfig::new()).ok();
     let mut temp_content_line: String = String::new();
 
     let mut entry: usize = 0;
@@ -79,7 +84,7 @@ fn main() {
                                     .as_str(),
                                 )
                                 .unwrap();
-                                panic!(
+                                error!(
                                     "Error parsing `{}: Line {}` => Unusual backlink patterns",
                                     &filename,
                                     &linenum + 1
@@ -91,8 +96,11 @@ fn main() {
                                 let mut filenamesingle: &str = filenamel;
                                 let mut filedisplay: &str = filenamel;
                                 if filenamel.contains('|') {
-                                    filenamesingle = filenamel.get(0..filenamel.find('|').unwrap()).unwrap();
-                                    filedisplay = filenamel.get(filenamel.find('|').unwrap()+1..filenamel.len()).unwrap();
+                                    filenamesingle =
+                                        filenamel.get(0..filenamel.find('|').unwrap()).unwrap();
+                                    filedisplay = filenamel
+                                        .get(filenamel.find('|').unwrap() + 1..filenamel.len())
+                                        .unwrap();
                                 }
                                 all_files.iter().enumerate().for_each(|(v, t)| {
                                     if t.ends_with(format!("{}.md", filenamesingle.trim()).as_str())
@@ -100,8 +108,14 @@ fn main() {
                                         entry = v;
                                         temp_content_line
                                             .push_str(s.get(current_index..*l).unwrap_or(""));
-                                        temp_content_line
-                                            .push_str(format!("__{} (Page {})__", filedisplay.trim(), entry+1).as_str());
+                                        temp_content_line.push_str(
+                                            format!(
+                                                "__{} (Page {})__",
+                                                filedisplay.trim(),
+                                                entry + 1
+                                            )
+                                            .as_str(),
+                                        );
                                         if j == start.len() - 1 {
                                             temp_content_line.push_str(
                                                 s.get((end[j] + 2)..(s.len())).unwrap_or(""),
@@ -116,7 +130,8 @@ fn main() {
                         })
                         .collect::<String>()
                         .as_str(),
-                ).as_str()
+                )
+                .as_str(),
             )
             .unwrap();
             println!(
